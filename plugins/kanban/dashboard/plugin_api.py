@@ -1700,10 +1700,20 @@ def get_config():
         cfg = load_config() or {}
     except Exception:
         cfg = {}
-    dash_cfg = (cfg.get("dashboard") or {})
-    # dashboard.kanban may itself be a dict; fall back to {}.
+    dash_cfg = (cfg.get("dashboard") or {}) if isinstance(cfg, dict) else {}
+    if not isinstance(dash_cfg, dict):
+        dash_cfg = {}
     k_cfg = dash_cfg.get("kanban") or {}
-    file_browser_url = k_cfg.get("file_browser_url") or ""
+    if not isinstance(k_cfg, dict):
+        k_cfg = {}
+    gateway_cfg = (cfg.get("gateway") or {}) if isinstance(cfg, dict) else {}
+    if not isinstance(gateway_cfg, dict):
+        gateway_cfg = {}
+    file_browser_url = (
+        k_cfg.get("file_browser_url")
+        or gateway_cfg.get("file_browser_url")
+        or ""
+    )
     if not isinstance(file_browser_url, str):
         file_browser_url = ""
     file_browser_url = file_browser_url.strip().rstrip("/")

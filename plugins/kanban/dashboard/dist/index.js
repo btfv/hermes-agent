@@ -209,12 +209,15 @@
       .join("/");
   }
 
-  function workspaceBrowserUrl(task, fileBrowserUrl) {
+  function workspaceBrowserUrl(task, fileBrowserUrl, boardSlug) {
     const base = String(fileBrowserUrl || "").trim().replace(/\/+$/, "");
     if (!base || !task) return "";
     let path = String(task.workspace_path || "").trim();
     if (!path && task.workspace_kind === "scratch" && task.id) {
-      path = "/opt/data/kanban/workspaces/" + task.id;
+      const board = String(boardSlug || "").trim();
+      path = board && board !== "default"
+        ? "/opt/data/kanban/boards/" + encodeURIComponent(board).toLowerCase() + "/workspaces/" + task.id
+        : "/opt/data/kanban/workspaces/" + task.id;
     }
     if (!path) return "";
     if (path.indexOf("/opt/data/") === 0) {
@@ -3060,6 +3063,7 @@
           allTasks: props.allTasks,
           assignees: props.assignees || [],
           boardSlug: boardSlug,
+          fileBrowserUrl: props.fileBrowserUrl,
           onPatch: doPatch,
           onSpecify: doSpecify,
           onDecompose: doDecompose,
@@ -3211,7 +3215,17 @@
     const events = props.data.events || [];
     const attachments = props.data.attachments || [];
     const links = props.data.links || { parents: [], children: [] };
-    const workspaceUrl = workspaceBrowserUrl(t, props.fileBrowserUrl);
+    const workspaceUrl = workspaceBrowserUrl(t, props.fileBrowserUrl, props.boardSlug);
+    const workspaceLabel = `${t.workspace_kind}${t.workspace_path ? ": " + t.workspace_path : ""}`;
+    const workspaceValue = workspaceUrl
+      ? h("a", {
+          className: "hermes-kanban-workspace-link",
+          href: workspaceUrl,
+          target: "_blank",
+          rel: "noreferrer noopener",
+          title: workspaceUrl,
+        }, workspaceLabel)
+      : workspaceLabel;
 
     return h("div", { className: "hermes-kanban-drawer-body" },
       h("div", { className: "hermes-kanban-drawer-title" },
@@ -3237,17 +3251,8 @@
         t.tenant ? h(MetaRow, { label: tx(i18n, "tenant", "Tenant"), value: t.tenant }) : null,
         h(MetaRow, {
           label: tx(i18n, "workspace", "Workspace"),
-          value: `${t.workspace_kind}${t.workspace_path ? ": " + t.workspace_path : ""}`,
+          value: workspaceValue,
         }),
-        workspaceUrl ? h(MetaRow, {
-          label: "",
-          value: h("a", {
-            className: "hermes-kanban-workspace-link",
-            href: workspaceUrl,
-            target: "_blank",
-            rel: "noreferrer noopener",
-          }, tx(i18n, "openWorkspace", "Open workspace")),
-        }) : null,
         (t.skills && t.skills.length > 0) ? h(MetaRow, {
           label: tx(i18n, "skills", "Skills"),
           value: t.skills.join(", "),
