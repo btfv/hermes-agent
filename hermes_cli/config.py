@@ -2456,6 +2456,9 @@ DEFAULT_CONFIG = {
         "message_timestamps": {
             "enabled": False,
         },
+        # Public URL for the read-only File Browser service, when deployed
+        # alongside Hermes. Keeps one canonical link for browsing /opt/data.
+        "file_browser_url": "",
 
         # When false (default), any file path the agent emits is delivered
         # as a native attachment as long as it isn't under the credential /

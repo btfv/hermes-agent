@@ -710,6 +710,16 @@ platform_toolsets:
   google_chat: [hermes-google_chat]
 
 # =============================================================================
+# Gateway Settings
+# =============================================================================
+# Optional gateway-wide settings.
+#
+# gateway:
+#   # Public URL for the read-only File Browser service, when deployed next to
+#   # Hermes. Use the external HTTPS URL if File Browser is behind a proxy.
+#   file_browser_url: "http://<vps-host>:9120"
+
+# =============================================================================
 # Gateway Platform Settings
 # =============================================================================
 # Optional per-platform messaging settings.
