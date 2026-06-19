@@ -1703,8 +1703,13 @@ def get_config():
     dash_cfg = (cfg.get("dashboard") or {})
     # dashboard.kanban may itself be a dict; fall back to {}.
     k_cfg = dash_cfg.get("kanban") or {}
+    file_browser_url = k_cfg.get("file_browser_url") or ""
+    if not isinstance(file_browser_url, str):
+        file_browser_url = ""
+    file_browser_url = file_browser_url.strip().rstrip("/")
     return {
         "default_tenant": k_cfg.get("default_tenant") or "",
+        "file_browser_url": file_browser_url,
         "lane_by_profile": bool(k_cfg.get("lane_by_profile", True)),
         "include_archived_by_default": bool(k_cfg.get("include_archived_by_default", False)),
         "render_markdown": bool(k_cfg.get("render_markdown", True)),

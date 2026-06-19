@@ -201,6 +201,33 @@
   const DOCS_URL = "https://hermes-agent.nousresearch.com/docs/user-guide/features/kanban";
   const DOCS_TUTORIAL_URL = "https://hermes-agent.nousresearch.com/docs/user-guide/features/kanban-tutorial";
 
+  function encodePathForUrl(path) {
+    return String(path || "")
+      .split("/")
+      .filter(function (part) { return part.length > 0; })
+      .map(function (part) { return encodeURIComponent(part); })
+      .join("/");
+  }
+
+  function workspaceBrowserUrl(task, fileBrowserUrl) {
+    const base = String(fileBrowserUrl || "").trim().replace(/\/+$/, "");
+    if (!base || !task) return "";
+    let path = String(task.workspace_path || "").trim();
+    if (!path && task.workspace_kind === "scratch" && task.id) {
+      path = "/opt/data/kanban/workspaces/" + task.id;
+    }
+    if (!path) return "";
+    if (path.indexOf("/opt/data/") === 0) {
+      path = path.slice("/opt/data".length);
+    } else if (path === "/opt/data") {
+      path = "/";
+    } else {
+      return "";
+    }
+    const encoded = encodePathForUrl(path);
+    return encoded ? base + "/files/" + encoded + "/" : base + "/files/";
+  }
+
   // localStorage key for the user's selected board. Independent of the
   // CLI's on-disk ``<root>/kanban/current`` pointer so browser users
   // can inspect any board without shifting the CLI's active board out
@@ -1052,6 +1079,7 @@
           onClose: function () { setSelectedTaskId(null); },
           onRefresh: loadBoard,
           renderMarkdown: renderMd,
+          fileBrowserUrl: config && config.file_browser_url,
           allTasks: boardData.columns.reduce(function (acc, c) { return acc.concat(c.tasks); }, []),
           assignees: (boardData && boardData.assignees) || [],
           eventTick: taskEventTick[selectedTaskId] || 0,
@@ -3183,6 +3211,7 @@
     const events = props.data.events || [];
     const attachments = props.data.attachments || [];
     const links = props.data.links || { parents: [], children: [] };
+    const workspaceUrl = workspaceBrowserUrl(t, props.fileBrowserUrl);
 
     return h("div", { className: "hermes-kanban-drawer-body" },
       h("div", { className: "hermes-kanban-drawer-title" },
@@ -3210,6 +3239,15 @@
           label: tx(i18n, "workspace", "Workspace"),
           value: `${t.workspace_kind}${t.workspace_path ? ": " + t.workspace_path : ""}`,
         }),
+        workspaceUrl ? h(MetaRow, {
+          label: "",
+          value: h("a", {
+            className: "hermes-kanban-workspace-link",
+            href: workspaceUrl,
+            target: "_blank",
+            rel: "noreferrer noopener",
+          }, tx(i18n, "openWorkspace", "Open workspace")),
+        }) : null,
         (t.skills && t.skills.length > 0) ? h(MetaRow, {
           label: tx(i18n, "skills", "Skills"),
           value: t.skills.join(", "),

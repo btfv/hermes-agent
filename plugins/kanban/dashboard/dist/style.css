@@ -449,6 +449,11 @@
   color: var(--color-foreground);
   word-break: break-word;
 }
+.hermes-kanban-workspace-link {
+  color: var(--color-primary, var(--color-foreground));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 .hermes-kanban-actions {
   display: flex;
