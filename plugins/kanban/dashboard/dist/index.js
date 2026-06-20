@@ -228,7 +228,7 @@
       return "";
     }
     const encoded = encodePathForUrl(path);
-    return encoded ? base + "/files/" + encoded + "/" : base + "/files/";
+    return encoded ? base + "/" + encoded + "/" : base + "/";
   }
 
   // localStorage key for the user's selected board. Independent of the
