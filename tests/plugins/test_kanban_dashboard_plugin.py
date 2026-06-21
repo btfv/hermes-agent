@@ -1171,9 +1171,12 @@ def test_config_returns_defaults_when_section_missing(client):
 def test_config_reads_dashboard_kanban_section(tmp_path, monkeypatch, client):
     home = Path(os.environ["HERMES_HOME"])
     (home / "config.yaml").write_text(
+        "gateway:\n"
+        "  file_browser_url: https://files.example.test/files/srv\n"
         "dashboard:\n"
         "  kanban:\n"
         "    default_tenant: acme\n"
+        "    file_browser_url: https://legacy-files.example.test\n"
         "    lane_by_profile: false\n"
         "    include_archived_by_default: true\n"
         "    render_markdown: false\n"
@@ -1182,6 +1185,7 @@ def test_config_reads_dashboard_kanban_section(tmp_path, monkeypatch, client):
     assert r.status_code == 200
     data = r.json()
     assert data["default_tenant"] == "acme"
+    assert data["file_browser_url"] == "https://files.example.test/files/srv"
     assert data["lane_by_profile"] is False
     assert data["include_archived_by_default"] is True
     assert data["render_markdown"] is False

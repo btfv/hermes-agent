@@ -1691,7 +1691,8 @@ def reassign_task_endpoint(
 def get_config():
     """Return kanban dashboard preferences from ~/.hermes/config.yaml.
 
-    Reads the ``dashboard.kanban`` section if present; defaults otherwise.
+    Reads the ``dashboard.kanban`` section for dashboard preferences and
+    ``gateway.file_browser_url`` for workspace links; defaults otherwise.
     Used by the UI to pre-select tenant filters, toggle markdown rendering,
     or set column-width preferences without a round-trip per page load.
     """
@@ -1709,11 +1710,7 @@ def get_config():
     gateway_cfg = (cfg.get("gateway") or {}) if isinstance(cfg, dict) else {}
     if not isinstance(gateway_cfg, dict):
         gateway_cfg = {}
-    file_browser_url = (
-        k_cfg.get("file_browser_url")
-        or gateway_cfg.get("file_browser_url")
-        or ""
-    )
+    file_browser_url = gateway_cfg.get("file_browser_url") or ""
     if not isinstance(file_browser_url, str):
         file_browser_url = ""
     file_browser_url = file_browser_url.strip().rstrip("/")
