@@ -1074,6 +1074,8 @@
           onDelete: deleteTask,
           onOpen: setSelectedTaskId,
           onCreate: createTask,
+          boardSlug: board,
+          fileBrowserUrl: config && config.file_browser_url,
           allTasks: boardData.columns.reduce(function (acc, c) { return acc.concat(c.tasks); }, []),
         }),
         selectedTaskId ? h(TaskDrawer, {
@@ -2421,6 +2423,8 @@
                       toggleSelected: props.toggleSelected,
                       toggleRange: props.toggleRange,
                       onOpen: props.onOpen,
+                      boardSlug: props.boardSlug,
+                      fileBrowserUrl: props.fileBrowserUrl,
                     });
                   }),
                 );
@@ -2435,6 +2439,8 @@
                   toggleSelected: props.toggleSelected,
                   toggleRange: props.toggleRange,
                   onOpen: props.onOpen,
+                  boardSlug: props.boardSlug,
+                  fileBrowserUrl: props.fileBrowserUrl,
                 });
               }),
       ),
@@ -2520,6 +2526,7 @@
 
     const progress = t.progress;
     const needsAssignee = t.status === "ready" && !t.assignee;
+    const workspaceUrl = workspaceBrowserUrl(t, props.fileBrowserUrl, props.boardSlug);
 
     return h("div", {
       ref: cardRef,
@@ -2616,6 +2623,17 @@
               ? h("span", { className: "hermes-kanban-count",
                             title: `${t.link_counts.parents} parent${t.link_counts.parents === 1 ? "" : "s"}, ${t.link_counts.children} child${t.link_counts.children === 1 ? "" : "ren"}. Children stay blocked until their parent is done.` },
                   "↔ ", t.link_counts.parents + t.link_counts.children)
+              : null,
+            workspaceUrl
+              ? h("a", {
+                  className: "hermes-kanban-workspace-link",
+                  href: workspaceUrl,
+                  target: "_blank",
+                  rel: "noreferrer noopener",
+                  title: workspaceUrl,
+                  onClick: function (e) { e.stopPropagation(); },
+                  onKeyDown: function (e) { e.stopPropagation(); },
+                }, tx(i18n, "openWorkspaceShort", "Files"))
               : null,
             h("span", { className: "hermes-kanban-ago",
                         title: t.created_at ? `Created ${t.created_at}` : "" },
